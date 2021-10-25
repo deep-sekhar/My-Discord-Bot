@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const fetch = require("node-fetch");
 
 app.get('/', (req, res) => res.send('Hello World!'));
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
@@ -27,41 +28,58 @@ const cron = require('cron');
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  //STATUS
-  client.user.setActivity('$$help', { type: 'PLAYING' });
+//STATUS
+client.user.setActivity('$$help', { type: 'PLAYING' });
 
-  let scheduledMessage = new cron.CronJob('00 30 08 * * *', () => {
-    // This runs every day at 1AM, you can do anything you want
-    // Specifing your guild (server) and your channel
-    const guild = client.guilds.cache.get('856472795738800138');
-    const channel = guild.channels.cache.get('856472796187197482');
-    channel.send('Gd morning boys!');
-    const guild2 = client.guilds.cache.get('760917131390091266');
-    const channel2 = guild2.channels.cache.get('789432643280044092');
-    channel2.send('Gd morning boys!');
-  }, undefined, true, "Asia/Kolkata");
+// ------------------------------------------------
+// GREETING SCHEDULED MESSAGES NOT USED NOW 
 
-  let scheduledMessage2 = new cron.CronJob('00 25 00 * * *', () => {
-    // This runs every day at 1AM, you can do anything you want
-    // Specifing your guild (server) and your channel
-    const guild = client.guilds.cache.get('856472795738800138');
-    const channel = guild.channels.cache.get('856472796187197482');
-    channel.send('Gd n8 boys!');
-    const guild2 = client.guilds.cache.get('760917131390091266');
-    const channel2 = guild2.channels.cache.get('789432643280044092');
-    channel2.send('Gdn8 boys!');
-  }, undefined, true, "Asia/Kolkata");
-
-  let scheduledMessage3 = new cron.CronJob('00 09 20 * * *', () => {
-    const guild2 = client.guilds.cache.get('760917131390091266');
-    const channel2 = guild2.channels.cache.get('789432643280044092');
-    channel2.send('Game Time boys!');
-  }, undefined, true, "Asia/Kolkata");
+  // let scheduledMessage = new cron.CronJob('00 30 08 * * *', () => {
+  //   // This runs every day at 1AM, you can do anything you want
+  //   // Specifing your guild (server) and your channel
+  //   const guild = client.guilds.cache.get('856472795738800138');
+  //   const channel = guild.channels.cache.get('856472796187197482');
+  //   channel.send('Gd morning boys!');
+  //   const guild2 = client.guilds.cache.get('760917131390091266');
+  //   const channel2 = guild2.channels.cache.get('789432643280044092');
+  //   channel2.send('Gd morning boys!');
+  // }, undefined, true, "Asia/Kolkata");
 
   // When you want to start it, use:
-  scheduledMessage2.start()
+  // scheduledMessage.start()
+  // ------------------------------------------------
+
+  let scheduledMessage = new cron.CronJob('00 45 08 * * *', () => {
+  const guild = client.guilds.cache.get('760917131390091266');
+  const channel = guild.channels.cache.get('865675535270281226');
+  channel.send('Bored doing classes, Here enjoy reading some headlines of the day:!');
+      let lnw = async()=>{
+        try{
+          let akey = process.env.GKEY;
+          let res = await fetch(`https://gnews.io/api/v4/top-headlines?token=${akey}&lang=en&country=in`);
+          console.log(res.status);
+          if(res.status!=200)
+          {
+          return(channel.send(res.status));
+          throw new Error("failed");
+          }
+          let json = await res.json();
+          let articles = json.articles;
+          Array.from(articles).forEach((ele,id)=>{
+              let nz = ""; 
+              nz +=`TOP HEADLINES:: `+ele.title+"\n";
+              nz += ele.url+"\n\n";
+              // return(msg.channel.send(nz));
+              setTimeout(()=>{ return(channel.send(nz)); }, 20000*id);
+          });
+        }catch(e)
+        {
+          return(channel.send('I got fucked'));
+        }
+      }
+      lnw();
+  }, undefined, true, "Asia/Kolkata");
   scheduledMessage.start()
-  scheduledMessage3.start()
 });
 
 // NORMAL COMMANDS 
@@ -73,7 +91,6 @@ client.on('message', msg => {
 
   // if bot is mentioned
   const mentionedMembersCollection = msg.mentions.members;
-  // deep id - 854910698727407656
   if(mentionedMembersCollection){
   if (mentionedMembersCollection.has('878180887953551401')) {
     msg.channel.send("",{files: ["./commands/images/dog.png"]});
@@ -81,7 +98,6 @@ client.on('message', msg => {
   }}
 
   // message starts with the prefix we defined earlier and return if it doesn’t
-  if(msg.content === "clr") return(msg.channel.send(">clear 50"));
   if (!msg.content.startsWith(symb)) return;
 
   // DEBUG PURPOSE 
@@ -108,7 +124,6 @@ client.on('message', msg => {
   if (!client.commands.has(command)) {
     return (msg.reply("More commands will be added soon!"));
   }
-  // mentionedMembersCollection.has(bot.user.id)
   console.info(client.user.id)
 
   try {
